@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      xmlns:c="http://jmix.io/schema/flowui/jpql-condition"
+      title="msg://orderListView.title"
+      focusComponent="ordersDataGrid">
+    <data>
+        <collection id="ordersDc"
+                    class="com.company.sampleapp.entity.Order">
+            <fetchPlan extends="_base">
+                <property name="customer" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="ordersDl" readOnly="true">
+                <query>
+                    <![CDATA[select e from Order_ e]]>
+                </query>
+            </loader>
+        </collection>
+        <instance class="com.company.sampleapp.entity.Order" id="orderDc">
+            <fetchPlan extends="_base">
+                <property name="customer" fetchPlan="_base"/>
+                <property name="lines" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="orderDl"/>
+            <collection id="linesDc" property="lines"/>
+        </instance>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+        <urlQueryParameters>
+            <genericFilter component="genericFilter"/>
+            <pagination component="pagination"/>
+        </urlQueryParameters>
+    </facets>
+    <actions>
+        <action id="selectAction" type="lookup_select"/>
+        <action id="discardAction" type="lookup_discard"/>
+    </actions>
+    <layout>
+        <formLayout width="100%" height="100%">
+            <vbox id="listLayout">
+                <genericFilter id="genericFilter"
+                               dataLoader="ordersDl">
+                    <properties include=".*"/>
+                </genericFilter>
+                <hbox id="buttonsPanel" classNames="buttons-panel">
+                    <button id="createBtn" action="ordersDataGrid.create"/>
+                    <button id="editBtn" action="ordersDataGrid.edit"/>
+                    <button id="removeBtn" action="ordersDataGrid.remove"/>
+                    <simplePagination id="pagination" dataLoader="ordersDl"/>
+                </hbox>
+                <dataGrid id="ordersDataGrid"
+                          width="100%"
+                          minHeight="20em"
+                          dataContainer="ordersDc">
+                    <actions>
+                        <action id="create" text="Create" icon="PLUS" actionVariant="PRIMARY"/>
+                        <action id="edit" text="Edit" icon="PENCIL"/>
+                        <action id="remove" type="list_remove"/>
+                    </actions>
+                    <columns>
+                        <column property="date"/>
+                        <column property="num"/>
+                    </columns>
+                </dataGrid>
+                <hbox id="lookupActions" visible="false">
+                    <button id="selectBtn" action="selectAction"/>
+                    <button id="discardBtn" action="discardAction"/>
+                </hbox>
+            </vbox>
+            <vbox>
+                <tabSheet width="100%" id="tabSheet">
+                    <tab id="mainTab" label="Main">
+                        <formLayout id="form" dataContainer="orderDc">
+                            <textField id="numField" property="num"/>
+                            <datePicker id="dateField" property="date"/>
+                            <entityPicker id="customerField" property="customer">
+                                <actions>
+                                    <action id="entityLookup" type="entity_lookup"/>
+                                    <action id="entityClear" type="entity_clear"/>
+                                </actions>
+                            </entityPicker>
+                        </formLayout>
+                    </tab>
+                    <tab id="orderLinesTab" label="OrderLines">
+                        <vbox>
+                            <hbox>
+                                <button id="orderLinesCreateBtn" action="orderLinesDataGrid.create"/>
+                                <button id="orderLinesEditBtn" action="orderLinesDataGrid.edit"/>
+                                <button id="orderLinesRemoveBtn" action="orderLinesDataGrid.remove"/>
+                            </hbox>
+                            <dataGrid dataContainer="linesDc" width="100%" id="orderLinesDataGrid">
+                                <columns>
+                                    <column property="product"/>
+                                    <column property="price"/>
+                                    <column property="quantity"/>
+                                </columns>
+                                <actions>
+                                    <action id="create" type="list_create">
+                                        <properties>
+                                            <property name="openMode" value="DIALOG"/>
+                                        </properties>
+                                    </action>
+                                    <action id="edit" type="list_edit">
+                                        <properties>
+                                            <property name="openMode" value="DIALOG"/>
+                                        </properties>
+                                    </action>
+                                    <action id="remove" type="list_remove"/>
+                                </actions>
+                            </dataGrid>
+                        </vbox>
+                    </tab>
+                </tabSheet>
+                <hbox id="detailActions">
+                    <button id="saveBtn" text="Save" enabled="false" themeNames="primary"/>
+                    <button id="cancelBtn" text="Cancel" enabled="false"/>
+                </hbox>
+            </vbox>
+        </formLayout>
+    </layout>
+</view>
